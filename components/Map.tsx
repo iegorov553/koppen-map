@@ -36,7 +36,11 @@ const GeoJsonLayer: React.FC<{ code: string; active: boolean }> = ({
       style={{
         color: koppen[code].color,
         fillOpacity: 0.5,
+        weight: 1,
+        lineCap: "round",
+        lineJoin: "round",
       }}
+      smoothFactor={1.5}
       key={code}
       attribution='Dataset: <a href="https://staging.igrac.kartoza.com/layers/igrac:other_climate_2007_koppen_geiger">igrac</a>'
       data={data}

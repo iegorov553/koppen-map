@@ -66,8 +66,11 @@ async function main() {
     await fs.mkdir("./data");
   }
   await makeGeoJson("all", newFeatures);
+  // Simplify boundaries to remove blocky/pixelated edges
+  // -simplify visvalingam: uses Visvalingam algorithm which preserves shape better
+  // -clean: fixes geometry issues like overlaps and gaps
   await exec(
-    `npx mapshaper ./data/all.json -snap -split code -o ./data format=topojson id-field=code singles`
+    `npx mapshaper ./data/all.json -snap -simplify 3% visvalingam keep-shapes -clean -split code -o ./data format=topojson id-field=code singles`
   );
   await fs.unlink("./data/all.json");
 }
