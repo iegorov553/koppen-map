@@ -37,30 +37,54 @@ function defaultState(defaultValue = true) {
 
 const IndexPage = () => {
   const [state, stateSet] = React.useState(defaultState());
+  const [language, setLanguage] = React.useState<"en" | "ru">("en");
 
   return (
     <div className={styles.home}>
       <Card className={styles.card}>
-        <h1 className={styles.header}>Köppen–Geiger Climate Classification</h1>
+        <h1 className={styles.header}>
+          {language === "en"
+            ? "Köppen–Geiger Climate Classification"
+            : "Классификация климатов Кёппена"}
+        </h1>
         <div>
           <a href="https://github.com/rjerue/koppen-map">Developed</a> with ❤️
           by <a href="https://jerue.org/">Ryan Jerue</a>
         </div>
+        <div style={{ marginTop: "10px" }}>
+          <button
+            onClick={() => setLanguage("en")}
+            style={{
+              marginRight: "10px",
+              fontWeight: language === "en" ? "bold" : "normal",
+            }}
+          >
+            English
+          </button>
+          <button
+            onClick={() => setLanguage("ru")}
+            style={{ fontWeight: language === "ru" ? "bold" : "normal" }}
+          >
+            Русский
+          </button>
+        </div>
       </Card>
       <Map state={state} />
-      <Legend>
+      <Legend legendTitle={language === "en" ? "Legend:" : "Легенда:"}>
         {Object.entries(byFirstLetter).map(([letter, values]) => {
           return (
             <div key={letter} className={`column ${styles.itemCol}`}>
-              {values.map(([code, { title, color }]) => {
+              {values.map(([code, { title, titleRu, color }]) => {
                 const active = state[code];
+                const displayTitle = language === "ru" ? titleRu : title;
                 return (
                   <div
                     onClick={() => stateSet({ ...state, [code]: !active })}
                     key={`${code}-legend`}
                     className={`${styles.item} ${styles.itemSm}`}
                   >
-                    <Box color={active ? color : "gray"} /> {code} - {title}
+                    <Box color={active ? color : "gray"} /> {code} -{" "}
+                    {displayTitle}
                   </div>
                 );
               })}
@@ -68,8 +92,12 @@ const IndexPage = () => {
           );
         })}
         <div className={`column ${styles.resetClear}`}>
-          <button onClick={() => stateSet(defaultState())}>Reset</button>
-          <button onClick={() => stateSet(defaultState(false))}>Clear</button>
+          <button onClick={() => stateSet(defaultState())}>
+            {language === "en" ? "Reset" : "Сброс"}
+          </button>
+          <button onClick={() => stateSet(defaultState(false))}>
+            {language === "en" ? "Clear" : "Очистить"}
+          </button>
         </div>
       </Legend>
     </div>
