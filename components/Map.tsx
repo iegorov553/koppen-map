@@ -6,10 +6,11 @@ import { GeoJSONOptions } from "leaflet";
 import usePromise from "react-promise-suspense";
 import { TopoJSON } from "./Topojson";
 
-const onFeature: GeoJSONOptions["onEachFeature"] = (feature, layer) => {
+const createOnFeature = (language: "en" | "ru"): GeoJSONOptions["onEachFeature"] => (feature, layer) => {
   if (feature.properties && feature.properties.code) {
     const code = feature.properties.code;
-    layer.bindPopup(koppen[code].title);
+    const title = language === "ru" ? koppen[code].titleRu : koppen[code].title;
+    layer.bindPopup(title);
   }
 };
 
@@ -26,9 +27,10 @@ function retrieveData(code: string) {
   return mapData[code];
 }
 
-const GeoJsonLayer: React.FC<{ code: string; active: boolean }> = ({
+const GeoJsonLayer: React.FC<{ code: string; active: boolean; language: "en" | "ru" }> = ({
   code,
   active,
+  language,
 }) => {
   const data = usePromise(retrieveData, [code]);
   return active ? (
@@ -44,7 +46,7 @@ const GeoJsonLayer: React.FC<{ code: string; active: boolean }> = ({
       key={code}
       attribution='Dataset: <a href="https://staging.igrac.kartoza.com/layers/igrac:other_climate_2007_koppen_geiger">igrac</a>'
       data={data}
-      onEachFeature={onFeature}
+      onEachFeature={createOnFeature(language)}
     />
   ) : null;
 };
@@ -52,7 +54,7 @@ const GeoJsonLayer: React.FC<{ code: string; active: boolean }> = ({
 // esri https://basemaps-api.arcgis.com/arcgis/rest/services/World_Basemap_v2/VectorTileServer/tile/4/6/10.pbf?token=AAPK9250e700411749c9b0f45c5c54662f24eGi6gpLH6WTEpI4rw0r6VT0MBuAEWhFUpHonLTRzLQfho48WPf4vBRkm0QFyErIP
 //   me https://basemaps-api.arcgis.com/arcgis/rest/services/World_Basemap_v2/VectorTileServer/tile/3/0/05.pbf?token=AAPK1130609626e347eb8e75e5d63e911103YzjrPTQ29pez_5weSVVPOZ9CpO29fiSLxNb1EF7MRt8G63CWGQlir1-sN7yANS2S
 
-const Map: React.FC<{ state: Record<string, boolean> }> = ({ state }) => {
+const Map: React.FC<{ state: Record<string, boolean>; language: "en" | "ru" }> = ({ state, language }) => {
   return (
     <div className={`${styles.map} ${styles.mapWrapper}`}>
       <MapContainer
@@ -70,7 +72,7 @@ const Map: React.FC<{ state: Record<string, boolean> }> = ({ state }) => {
         {Object.keys(koppen).map((code) => {
           return (
             <Suspense key={code} fallback={<></>}>
-              <GeoJsonLayer code={code} active={state[code]} />
+              <GeoJsonLayer code={code} active={state[code]} language={language} />
             </Suspense>
           );
         })}

@@ -69,7 +69,7 @@ const IndexPage = () => {
           </button>
         </div>
       </Card>
-      <Map state={state} />
+      <Map state={state} language={language} />
       <Legend legendTitle={language === "en" ? "Legend:" : "Легенда:"}>
         {Object.entries(byFirstLetter).map(([letter, values]) => {
           return (
