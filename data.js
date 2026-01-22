@@ -2,6 +2,37 @@ const fs = require("fs/promises");
 const raw = require("./raw-data.json");
 const exec = require("node-exec-promise").exec;
 
+// Chaikin algorithm for smoothing polygon corners
+function chaikinSmooth(coords, iterations = 2) {
+  let result = coords;
+  for (let i = 0; i < iterations; i++) {
+    const smoothed = [];
+    for (let j = 0; j < result.length - 1; j++) {
+      const p0 = result[j];
+      const p1 = result[j + 1];
+      // Create points at 25% and 75% along each edge
+      smoothed.push([
+        0.75 * p0[0] + 0.25 * p1[0],
+        0.75 * p0[1] + 0.25 * p1[1],
+      ]);
+      smoothed.push([
+        0.25 * p0[0] + 0.75 * p1[0],
+        0.25 * p0[1] + 0.75 * p1[1],
+      ]);
+    }
+    // Close the polygon
+    if (smoothed.length > 0) {
+      smoothed.push(smoothed[0]);
+    }
+    result = smoothed;
+  }
+  return result;
+}
+
+function smoothPolygonCoords(coordinates) {
+  return coordinates.map((ring) => chaikinSmooth(ring, 2));
+}
+
 function makeName(e) {
   if (e === "Dfa Cold-Withouth_dry_season-Very_Cold_Winter") {
     return "Dfd";
@@ -21,6 +52,8 @@ const transform = (func) => (coordinates) => {
 
 function duplicate360(feature, code) {
   const coordinates = feature.geometry.coordinates || [];
+  // Apply Chaikin smoothing to round corners
+  const smoothedCoords = smoothPolygonCoords(coordinates);
   const makeCords = (c) => ({
     type: feature.type,
     geometry: {
@@ -31,9 +64,9 @@ function duplicate360(feature, code) {
       code,
     },
   });
-  const added = coordinates.map(transform((l) => l + 360));
-  const removed = coordinates.map(transform((l) => l - 360));
-  return [makeCords(coordinates), makeCords(added), makeCords(removed)];
+  const added = smoothedCoords.map(transform((l) => l + 360));
+  const removed = smoothedCoords.map(transform((l) => l - 360));
+  return [makeCords(smoothedCoords), makeCords(added), makeCords(removed)];
 }
 
 const newFeatures = raw.features
