@@ -46,3 +46,6 @@ public/workbox-*
 
 .yarn/cache
 .yarn/install-state.gz
+
+# TypeScript
+tsconfig.tsbuildinfo
