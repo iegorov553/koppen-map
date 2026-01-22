@@ -71,7 +71,7 @@ const Map: React.FC<{ state: Record<string, boolean>; language: "en" | "ru" }> =
         />
         {Object.keys(koppen).map((code) => {
           return (
-            <Suspense key={code} fallback={<></>}>
+            <Suspense key={`${code}-${language}`} fallback={<></>}>
               <GeoJsonLayer code={code} active={state[code]} language={language} />
             </Suspense>
           );
