@@ -4,6 +4,7 @@ import { feature } from "topojson";
 
 interface TopoJSONProps extends GeoJSONProps {
   data: any;
+  smoothFactor?: number;
 }
 
 export const TopoJSON: React.FC<TopoJSONProps> = (props) => {

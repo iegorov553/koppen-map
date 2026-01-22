@@ -40,7 +40,7 @@ const GeoJsonLayer: React.FC<{ code: string; active: boolean }> = ({
         lineCap: "round",
         lineJoin: "round",
       }}
-      smoothFactor={1.5}
+      smoothFactor={3}
       key={code}
       attribution='Dataset: <a href="https://staging.igrac.kartoza.com/layers/igrac:other_climate_2007_koppen_geiger">igrac</a>'
       data={data}
